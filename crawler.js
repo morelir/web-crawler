@@ -30,7 +30,7 @@ const crawl = async ({ url, depth, currentDepth, ignore }) => {
   if (seenUrls[url]) return;
   seenUrls[url] = true;
   const { host, protocol } = urlParser.parse(url);
-  console.log(host)
+  console.log(url);
   const response = await fetch(url);
   const html = await response.text();
   const $ = cheerio.load(html);
@@ -39,7 +39,6 @@ const crawl = async ({ url, depth, currentDepth, ignore }) => {
     .get();
 
   $("img").each((i, link) => {
-    console.log(link.attribs.src)
     addDocument({
       imageUrl: link.attribs.src,
       sourceUrl: url,
@@ -52,11 +51,10 @@ const crawl = async ({ url, depth, currentDepth, ignore }) => {
   const promises = [];
 
   links
-    .filter((link) => {
-      return (
+    .filter(
+      (link) =>
         getUrl(link, host, protocol).includes(host) && !link.includes(ignore)
-      );
-    })
+    )
     .forEach((link) => {
       promises.push(
         crawl({
@@ -75,7 +73,7 @@ crawl({
   url: urlParam,
   depth: depthParam,
   currentDepth: 0,
-  ignore: "/search",
+  ignore: "#",
 }).then(() => {
   fs.writeFile(`${__dirname}/results.json`, JSON.stringify(results), (err) => {
     console.log(err);

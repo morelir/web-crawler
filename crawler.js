@@ -26,7 +26,14 @@ const getUrl = (link, host, protocol) => {
   }
 };
 
-const crawl = async ({ url, depth, currentDepth, ignore }) => {
+/**
+ * Crawler Function
+ * @param {String} url - source URL
+ * @param {Number} depth - max crawling depth
+ * @param {Number} currentDepth - current crawling depth
+ * @param {Array<String>} ignores - array of strings that links shouldn't include
+ */
+const crawl = async ({ url, depth, currentDepth = 0, ignores }) => {
   if (seenUrls[url]) return;
   seenUrls[url] = true;
   const { host, protocol } = urlParser.parse(url);
@@ -53,7 +60,8 @@ const crawl = async ({ url, depth, currentDepth, ignore }) => {
   links
     .filter(
       (link) =>
-        getUrl(link, host, protocol).includes(host) && !link.includes(ignore)
+        getUrl(link, host, protocol).includes(host) &&
+        ignores.filter((keyword) => !link.includes(keyword)).length > 0
     )
     .forEach((link) => {
       promises.push(
@@ -61,7 +69,7 @@ const crawl = async ({ url, depth, currentDepth, ignore }) => {
           url: getUrl(link, host, protocol),
           depth,
           currentDepth: currentDepth + 1,
-          ignore,
+          ignores,
         })
       );
     });
@@ -72,8 +80,7 @@ const crawl = async ({ url, depth, currentDepth, ignore }) => {
 crawl({
   url: urlParam,
   depth: depthParam,
-  currentDepth: 0,
-  ignore: "#",
+  ignores: ["#"],
 }).then(() => {
   fs.writeFile(`${__dirname}/results.json`, JSON.stringify(results), (err) => {
     console.log(err);

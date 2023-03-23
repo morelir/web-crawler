@@ -79,6 +79,3 @@ crawl({
     console.log(err);
   });
 });
-
-// http://localhost:10000/index.html
-// http://stevescooking.blogspot.com/

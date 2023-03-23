@@ -37,7 +37,6 @@ const crawl = async ({ url, depth, currentDepth = 0, ignores }) => {
   if (seenUrls[url]) return;
   seenUrls[url] = true;
   const { host, protocol } = urlParser.parse(url);
-  console.log(url);
   const response = await fetch(url);
   const html = await response.text();
   const $ = cheerio.load(html);
